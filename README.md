@@ -1,16 +1,34 @@
-# React + Vite
+# Fridge Magnet Studio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React and Vite application for creating fridge magnet designs.
 
-Currently, two official plugins are available:
+## Run for development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Development requires Node.js and a package manager such as npm:
 
-## React Compiler
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run without npm
 
-## Expanding the Oxlint configuration
+The prebuilt app in `dist/` does not require npm or Node.js. Serve that
+directory with any static web server; for example, using Python:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+python3 -m http.server 8000 --directory dist
+```
+
+Then open <http://localhost:8000>.
+
+Do not open `dist/index.html` directly because the generated asset URLs expect
+the app to be served from a web root.
+
+## Build
+
+After changing the source, regenerate `dist/` with:
+
+```bash
+npm run build
+```
