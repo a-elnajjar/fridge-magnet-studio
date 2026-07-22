@@ -217,7 +217,7 @@ export default function TextToolPreview() {
     <div className="relative h-full w-full overflow-hidden rounded-[inherit]">
       {layers.length === 0 && (
         <div className="flex h-full w-full items-center justify-center">
-          <p className="px-4 text-center text-sm text-[#7c7f88]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+          <p className="px-4 text-center text-sm text-[#63666f]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Add text or an image
             <br />
             to get started
@@ -294,16 +294,16 @@ export default function TextToolPreview() {
             </div>
             {isSelected && (
               <>
-                <div className="pointer-events-none absolute inset-0 outline outline-2 outline-offset-2 outline-[#e4572e]" />
+                <div className="pointer-events-none absolute inset-0 outline outline-2 outline-offset-2 outline-[#0d8163]" />
                 <div
                   onPointerDown={(e) => startInteraction(e, l, "resize")}
-                  className="absolute -right-2 -bottom-2 h-5 w-5 touch-none cursor-se-resize rounded-full border-2 border-[#e4572e] bg-white md:h-3.5 md:w-3.5"
+                  className="absolute -right-2 -bottom-2 h-5 w-5 touch-none cursor-se-resize rounded-full border-2 border-[#0d8163] bg-white md:h-3.5 md:w-3.5"
                 />
                 <div
                   onPointerDown={(e) => startInteraction(e, l, "rotate")}
-                  className="absolute top-0 left-1/2 h-5 w-5 -translate-x-1/2 -translate-y-7 touch-none cursor-grab rounded-full border-2 border-[#e4572e] bg-white md:h-3.5 md:w-3.5 md:-translate-y-6"
+                  className="absolute top-0 left-1/2 h-5 w-5 -translate-x-1/2 -translate-y-7 touch-none cursor-grab rounded-full border-2 border-[#0d8163] bg-white md:h-3.5 md:w-3.5 md:-translate-y-6"
                 />
-                <div className="pointer-events-none absolute left-1/2 top-0 h-6 w-px -translate-x-1/2 -translate-y-6 bg-[#e4572e]" />
+                <div className="pointer-events-none absolute left-1/2 top-0 h-6 w-px -translate-x-1/2 -translate-y-6 bg-[#0d8163]" />
               </>
             )}
           </div>
@@ -313,18 +313,18 @@ export default function TextToolPreview() {
   );
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-[#121316] font-sans md:h-[640px] md:min-h-0">
-      <header className="flex min-h-14 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#313339] bg-[#1b1d21] px-3 py-2 md:px-4">
-        <p className="text-[15px] font-semibold text-[#f7f8f9]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div className="flex min-h-dvh w-full flex-col bg-[#f3f4f6] font-sans md:h-[640px] md:min-h-0">
+      <header className="flex min-h-14 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#dfe2e7] bg-[#ffffff] px-3 py-2 md:px-4">
+        <p className="text-[15px] font-semibold text-[#16181c]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
           Fridge Magnet Studio
         </p>
         <div className="flex items-center gap-2">
-          <div className="flex items-center rounded-lg border border-[#45474e] bg-[#24262b] p-0.5">
+          <div className="flex items-center rounded-lg border border-[#cbcfd6] bg-[#eef0f3] p-0.5">
             <button
               type="button"
               onClick={() => setViewMode("design")}
               className={`rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                isDesign ? "bg-[#e4572e] text-white" : "text-[#7c7f88] hover:text-[#f7f8f9]"
+                isDesign ? "bg-[#0d8163] text-white" : "text-[#63666f] hover:text-[#16181c]"
               }`}
             >
               Design
@@ -333,7 +333,7 @@ export default function TextToolPreview() {
               type="button"
               onClick={() => setViewMode("fridge")}
               className={`rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                !isDesign ? "bg-[#e4572e] text-white" : "text-[#7c7f88] hover:text-[#f7f8f9]"
+                !isDesign ? "bg-[#0d8163] text-white" : "text-[#63666f] hover:text-[#16181c]"
               }`}
             >
               Fridge
@@ -343,7 +343,7 @@ export default function TextToolPreview() {
             type="button"
             onClick={exportPng}
             disabled={exporting}
-            className="rounded-lg bg-[#e4572e] px-3 py-2 text-[12px] font-semibold text-white disabled:cursor-wait disabled:opacity-60"
+            className="rounded-lg bg-[#0d8163] px-3 py-2 text-[12px] font-semibold text-white disabled:cursor-wait disabled:opacity-60"
           >
             {exporting ? "Exporting…" : "Export PNG"}
           </button>
@@ -351,18 +351,18 @@ export default function TextToolPreview() {
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <nav className="flex h-16 shrink-0 flex-row items-center justify-center gap-2 border-b border-[#313339] bg-[#1b1d21] px-3 md:h-auto md:w-16 md:flex-col md:justify-start md:border-r md:border-b-0 md:px-0 md:py-4">
+        <nav className="flex h-16 shrink-0 flex-row items-center justify-center gap-2 border-b border-[#dfe2e7] bg-[#ffffff] px-3 md:h-auto md:w-16 md:flex-col md:justify-start md:border-r md:border-b-0 md:px-0 md:py-4">
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex w-12 flex-col items-center gap-1 rounded-lg py-2 text-[#7c7f88] hover:bg-[#24262b]"
+            className="flex w-12 flex-col items-center gap-1 rounded-lg py-2 text-[#63666f] hover:bg-[#eef0f3]"
           >
             <div className="h-5 w-5 rounded-sm border border-current" />
             <span className="text-[10px] font-medium">Image</span>
           </button>
           <button
             onClick={addText}
-            className="flex w-12 flex-col items-center gap-1 rounded-lg py-2 text-[#e4572e] bg-[#e4572e]/15"
+            className="flex w-12 flex-col items-center gap-1 rounded-lg py-2 text-[#0d8163] bg-[#0d8163]/15"
           >
             <div className="h-5 w-5 rounded-sm border border-current" />
             <span className="text-[10px] font-medium">Text</span>
@@ -370,7 +370,7 @@ export default function TextToolPreview() {
         </nav>
 
         <main
-          className="flex min-h-[360px] min-w-0 flex-1 items-center justify-center overflow-auto bg-[#0b0c0e] p-5 md:min-h-0 md:p-8"
+          className="flex min-h-[360px] min-w-0 flex-1 items-center justify-center overflow-auto bg-[#e8eaed] p-5 md:min-h-0 md:p-8"
           onPointerDown={() => setSelectedId(null)}
         >
           {isDesign ? (
@@ -406,26 +406,26 @@ export default function TextToolPreview() {
           )}
         </main>
 
-        <aside className="flex max-h-[320px] w-full shrink-0 flex-col overflow-y-auto border-t border-[#313339] bg-[#1b1d21] p-4 md:max-h-none md:w-[280px] md:border-t-0 md:border-l">
+        <aside className="flex max-h-[320px] w-full shrink-0 flex-col overflow-y-auto border-t border-[#dfe2e7] bg-[#ffffff] p-4 md:max-h-none md:w-[280px] md:border-t-0 md:border-l">
           {selected ? (
             <div className="flex flex-col gap-4">
               {selected.type === "image" && (
                 <>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[13px] font-semibold text-[#f7f8f9]">Crop image</p>
-                      <p className="text-[11px] text-[#7c7f88]">Zoom and choose the visible area</p>
+                      <p className="text-[13px] font-semibold text-[#16181c]">Crop image</p>
+                      <p className="text-[11px] text-[#63666f]">Zoom and choose the visible area</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => updateSelected({ cropZoom: 1, cropX: 50, cropY: 50 })}
-                      className="rounded-md border border-[#45474e] px-2 py-1 text-[11px] text-[#c7c9ce]"
+                      className="rounded-md border border-[#cbcfd6] px-2 py-1 text-[11px] text-[#3f4147]"
                     >
                       Reset
                     </button>
                   </div>
                   <label className="block">
-                    <span className="mb-1.5 flex justify-between text-[11px] font-medium uppercase tracking-wide text-[#7c7f88]">
+                    <span className="mb-1.5 flex justify-between text-[11px] font-medium uppercase tracking-wide text-[#63666f]">
                       Zoom <span>{(selected.cropZoom || 1).toFixed(1)}×</span>
                     </span>
                     <input
@@ -435,11 +435,11 @@ export default function TextToolPreview() {
                       step={0.1}
                       value={selected.cropZoom || 1}
                       onChange={(e) => updateSelected({ cropZoom: Number(e.target.value) })}
-                      className="w-full accent-[#e4572e]"
+                      className="w-full accent-[#0d8163]"
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 flex justify-between text-[11px] font-medium uppercase tracking-wide text-[#7c7f88]">
+                    <span className="mb-1.5 flex justify-between text-[11px] font-medium uppercase tracking-wide text-[#63666f]">
                       Horizontal <span>{selected.cropX ?? 50}%</span>
                     </span>
                     <input
@@ -448,11 +448,11 @@ export default function TextToolPreview() {
                       max={100}
                       value={selected.cropX ?? 50}
                       onChange={(e) => updateSelected({ cropX: Number(e.target.value) })}
-                      className="w-full accent-[#e4572e]"
+                      className="w-full accent-[#0d8163]"
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 flex justify-between text-[11px] font-medium uppercase tracking-wide text-[#7c7f88]">
+                    <span className="mb-1.5 flex justify-between text-[11px] font-medium uppercase tracking-wide text-[#63666f]">
                       Vertical <span>{selected.cropY ?? 50}%</span>
                     </span>
                     <input
@@ -461,10 +461,10 @@ export default function TextToolPreview() {
                       max={100}
                       value={selected.cropY ?? 50}
                       onChange={(e) => updateSelected({ cropY: Number(e.target.value) })}
-                      className="w-full accent-[#e4572e]"
+                      className="w-full accent-[#0d8163]"
                     />
                   </label>
-                  <p className="text-[11px] leading-relaxed text-[#7c7f88]">
+                  <p className="text-[11px] leading-relaxed text-[#63666f]">
                     Resize the orange frame to set the crop shape, then use these controls to position the photo inside it.
                   </p>
                 </>
@@ -472,24 +472,24 @@ export default function TextToolPreview() {
               {selected.type === "text" && (
                 <>
                   <div>
-                    <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[#7c7f88]">Text</label>
+                    <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[#63666f]">Text</label>
                     <textarea
                       value={selected.text}
                       rows={2}
                       onChange={(e) =>
                         setLayers((prev) => prev.map((l) => (l.id === selected.id ? { ...l, text: e.target.value } : l)))
                       }
-                      className="w-full resize-none rounded-md border border-[#45474e] bg-[#24262b] px-2.5 py-1.5 text-[13px] text-[#f7f8f9] outline-none"
+                      className="w-full resize-none rounded-md border border-[#cbcfd6] bg-[#eef0f3] px-2.5 py-1.5 text-[13px] text-[#16181c] outline-none"
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[#7c7f88]">Font</label>
+                    <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[#63666f]">Font</label>
                     <select
                       value={selected.fontFamily}
                       onChange={(e) =>
                         setLayers((prev) => prev.map((l) => (l.id === selected.id ? { ...l, fontFamily: e.target.value } : l)))
                       }
-                      className="w-full rounded-md border border-[#45474e] bg-[#24262b] px-2.5 py-1.5 text-[13px] text-[#f7f8f9] outline-none"
+                      className="w-full rounded-md border border-[#cbcfd6] bg-[#eef0f3] px-2.5 py-1.5 text-[13px] text-[#16181c] outline-none"
                     >
                       {FONT_OPTIONS.map((f) => (
                         <option key={f} value={f} style={{ fontFamily: f }}>
@@ -500,8 +500,8 @@ export default function TextToolPreview() {
                   </div>
                   <div>
                     <div className="mb-1.5 flex items-center justify-between">
-                      <label className="text-[11px] font-medium uppercase tracking-wide text-[#7c7f88]">Size</label>
-                      <span className="text-[11px] text-[#7c7f88]">{selected.fontSize}</span>
+                      <label className="text-[11px] font-medium uppercase tracking-wide text-[#63666f]">Size</label>
+                      <span className="text-[11px] text-[#63666f]">{selected.fontSize}</span>
                     </div>
                     <input
                       type="range"
@@ -514,7 +514,7 @@ export default function TextToolPreview() {
                           prev.map((l) => (l.id === selected.id ? { ...l, fontSize: Number(e.target.value) } : l)),
                         )
                       }
-                      className="w-full accent-[#e4572e]"
+                      className="w-full accent-[#0d8163]"
                     />
                   </div>
                   <div className="flex gap-2">
@@ -525,7 +525,7 @@ export default function TextToolPreview() {
                         )
                       }
                       className={`flex-1 rounded-md border py-1.5 text-[13px] font-bold ${
-                        selected.fontWeight >= 700 ? "border-[#e4572e]/50 bg-[#e4572e]/10 text-[#e4572e]" : "border-[#45474e] text-[#7c7f88]"
+                        selected.fontWeight >= 700 ? "border-[#0d8163]/50 bg-[#0d8163]/10 text-[#0d8163]" : "border-[#cbcfd6] text-[#63666f]"
                       }`}
                     >
                       B
@@ -535,7 +535,7 @@ export default function TextToolPreview() {
                         setLayers((prev) => prev.map((l) => (l.id === selected.id ? { ...l, italic: !l.italic } : l)))
                       }
                       className={`flex-1 rounded-md border py-1.5 text-[13px] italic ${
-                        selected.italic ? "border-[#e4572e]/50 bg-[#e4572e]/10 text-[#e4572e]" : "border-[#45474e] text-[#7c7f88]"
+                        selected.italic ? "border-[#0d8163]/50 bg-[#0d8163]/10 text-[#0d8163]" : "border-[#cbcfd6] text-[#63666f]"
                       }`}
                     >
                       I
@@ -546,7 +546,7 @@ export default function TextToolPreview() {
                       onChange={(e) =>
                         setLayers((prev) => prev.map((l) => (l.id === selected.id ? { ...l, color: e.target.value } : l)))
                       }
-                      className="h-[34px] w-12 shrink-0 cursor-pointer rounded-md border border-[#45474e] bg-[#24262b] p-1"
+                      className="h-[34px] w-12 shrink-0 cursor-pointer rounded-md border border-[#cbcfd6] bg-[#eef0f3] p-1"
                     />
                   </div>
                   <div className="flex gap-2">
@@ -557,7 +557,7 @@ export default function TextToolPreview() {
                           setLayers((prev) => prev.map((l) => (l.id === selected.id ? { ...l, align } : l)))
                         }
                         className={`flex-1 rounded-md border py-1.5 text-[12px] font-medium capitalize ${
-                          selected.align === align ? "border-[#e4572e]/50 bg-[#e4572e]/10 text-[#e4572e]" : "border-[#45474e] text-[#7c7f88]"
+                          selected.align === align ? "border-[#0d8163]/50 bg-[#0d8163]/10 text-[#0d8163]" : "border-[#cbcfd6] text-[#63666f]"
                         }`}
                       >
                         {align}
@@ -568,9 +568,9 @@ export default function TextToolPreview() {
               )}
             </div>
           ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[#45474e] px-4 py-10 text-center">
-              <p className="text-[13px] font-medium text-[#c7c9ce]">Nothing selected</p>
-              <p className="text-[12px] leading-relaxed text-[#7c7f88]">Click the Text tool to add a text layer.</p>
+            <div className="flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[#cbcfd6] px-4 py-10 text-center">
+              <p className="text-[13px] font-medium text-[#3f4147]">Nothing selected</p>
+              <p className="text-[12px] leading-relaxed text-[#63666f]">Click the Text tool to add a text layer.</p>
             </div>
           )}
         </aside>
