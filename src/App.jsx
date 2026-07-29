@@ -2,10 +2,37 @@ import { useRef, useState } from "react";
 
 let nextId = 1;
 const FONT_OPTIONS = ["Inter", "Space Grotesk", "Playfair Display", "Caveat", "Poppins"];
+const OPENMOJI_PRESETS = [
+  { name: "Heart", src: "/presets/openmoji/heart.svg" },
+  { name: "Star", src: "/presets/openmoji/star.svg" },
+  { name: "Smile", src: "/presets/openmoji/smile.svg" },
+  { name: "Sunflower", src: "/presets/openmoji/sunflower.svg" },
+  { name: "Pizza", src: "/presets/openmoji/pizza.svg" },
+  { name: "Rocket", src: "/presets/openmoji/rocket.svg" },
+  { name: "Butterfly", src: "/presets/openmoji/butterfly.svg" },
+  { name: "Cat", src: "/presets/openmoji/cat.svg" },
+  { name: "Dog", src: "/presets/openmoji/dog.svg" },
+  { name: "Fire", src: "/presets/openmoji/fire.svg" },
+  { name: "Sparkles", src: "/presets/openmoji/sparkles.svg" },
+  { name: "Sun", src: "/presets/openmoji/sun.svg" },
+  { name: "Moon", src: "/presets/openmoji/moon.svg" },
+  { name: "Lightning", src: "/presets/openmoji/lightning.svg" },
+  { name: "Music", src: "/presets/openmoji/music.svg" },
+  { name: "Camera", src: "/presets/openmoji/camera.svg" },
+  { name: "Gift", src: "/presets/openmoji/gift.svg" },
+  { name: "Party", src: "/presets/openmoji/party.svg" },
+  { name: "Globe", src: "/presets/openmoji/globe.svg" },
+  { name: "Ice cream", src: "/presets/openmoji/ice-cream.svg" },
+  { name: "Avocado", src: "/presets/openmoji/avocado.svg" },
+  { name: "Soccer", src: "/presets/openmoji/soccer.svg" },
+  { name: "Car", src: "/presets/openmoji/car.svg" },
+];
 
 export default function TextToolPreview() {
   const [layers, setLayers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [presetPickerOpen, setPresetPickerOpen] = useState(false);
   const [viewMode, setViewMode] = useState("design");
   const [exporting, setExporting] = useState(false);
   const canvasRef = useRef(null);
@@ -42,6 +69,7 @@ export default function TextToolPreview() {
       },
     ]);
     setSelectedId(id);
+    setAddMenuOpen(false);
   };
 
   const handleFiles = (e) => {
@@ -86,6 +114,43 @@ export default function TextToolPreview() {
       };
       reader.readAsDataURL(file);
     });
+  };
+
+  const addOpenMoji = (preset) => {
+    const img = new Image();
+    img.onload = () => {
+      const ratio = img.naturalWidth / img.naturalHeight;
+      const maxDim = 42;
+      const width = ratio >= 1 ? maxDim : maxDim * ratio;
+      const height = ratio >= 1 ? maxDim / ratio : maxDim;
+      const offset = (layers.length % 5) * 2.4;
+      const id = nextId++;
+      setLayers((prev) => [
+        ...prev,
+        {
+          id,
+          type: "image",
+          name: `OpenMoji ${preset.name}`,
+          src: preset.src,
+          naturalWidth: img.naturalWidth,
+          naturalHeight: img.naturalHeight,
+          cropZoom: 1,
+          cropX: 50,
+          cropY: 50,
+          width,
+          height,
+          x: 50 + offset,
+          y: 50 + offset,
+          rotation: 0,
+          flipX: false,
+          flipY: false,
+          opacity: 1,
+        },
+      ]);
+      setSelectedId(id);
+      setPresetPickerOpen(false);
+    };
+    img.src = preset.src;
   };
 
   const containerRect = () => canvasRef.current?.getBoundingClientRect();
@@ -351,22 +416,66 @@ export default function TextToolPreview() {
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <nav className="flex h-16 shrink-0 flex-row items-center justify-center gap-2 border-b border-[#dfe2e7] bg-[#ffffff] px-3 md:h-auto md:w-16 md:flex-col md:justify-start md:border-r md:border-b-0 md:px-0 md:py-4">
+        <nav className="relative flex h-16 shrink-0 flex-row items-center justify-center gap-2 border-b border-[#dfe2e7] bg-[#ffffff] px-3 md:h-auto md:w-16 md:flex-col md:justify-start md:border-r md:border-b-0 md:px-0 md:py-4">
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
           <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex w-12 flex-col items-center gap-1 rounded-lg py-2 text-[#63666f] hover:bg-[#eef0f3]"
+            type="button"
+            onClick={() => setAddMenuOpen((open) => !open)}
+            aria-expanded={addMenuOpen}
+            aria-haspopup="menu"
+            aria-label="Add a layer"
+            className={`flex w-20 flex-col items-center gap-1 rounded-lg py-2 transition-colors md:w-12 ${
+              addMenuOpen ? "bg-[#0d8163] text-white" : "bg-[#0d8163]/15 text-[#0d8163] hover:bg-[#0d8163]/25"
+            }`}
           >
-            <div className="h-5 w-5 rounded-sm border border-current" />
-            <span className="text-[10px] font-medium">Image</span>
+            <span className="flex h-5 w-5 items-center justify-center text-2xl font-light leading-none">+</span>
+            <span className="text-[10px] font-semibold">
+              <span className="md:hidden">Add layer</span>
+              <span className="hidden md:inline">Add</span>
+            </span>
           </button>
-          <button
-            onClick={addText}
-            className="flex w-12 flex-col items-center gap-1 rounded-lg py-2 text-[#0d8163] bg-[#0d8163]/15"
-          >
-            <div className="h-5 w-5 rounded-sm border border-current" />
-            <span className="text-[10px] font-medium">Text</span>
-          </button>
+          {addMenuOpen && (
+            <div
+              role="menu"
+              aria-label="Choose layer type"
+              className="absolute left-1/2 top-full z-30 mt-2 flex w-44 -translate-x-1/2 flex-col gap-1 rounded-xl border border-[#dfe2e7] bg-white p-2 shadow-[0_12px_30px_rgba(0,0,0,0.18)] md:left-full md:top-2 md:mt-0 md:ml-2 md:translate-x-0"
+            >
+              <p className="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#63666f]">Add layer</p>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setAddMenuOpen(false);
+                  fileInputRef.current?.click();
+                }}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[#3f4147] hover:bg-[#eef0f3]"
+              >
+                <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-current text-[10px]">▧</div>
+                <span className="text-[12px] font-medium">Image layer</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={addText}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[#3f4147] hover:bg-[#eef0f3]"
+              >
+                <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-current text-xs font-semibold">T</div>
+                <span className="text-[12px] font-medium">Text layer</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setAddMenuOpen(false);
+                  setPresetPickerOpen(true);
+                }}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[#3f4147] hover:bg-[#eef0f3]"
+              >
+                <div className="flex h-5 w-5 items-center justify-center text-base">🙂</div>
+                <span className="text-[12px] font-medium">OpenMoji</span>
+              </button>
+            </div>
+          )}
         </nav>
 
         <main
@@ -570,11 +679,59 @@ export default function TextToolPreview() {
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[#cbcfd6] px-4 py-10 text-center">
               <p className="text-[13px] font-medium text-[#3f4147]">Nothing selected</p>
-              <p className="text-[12px] leading-relaxed text-[#63666f]">Click the Text tool to add a text layer.</p>
+              <p className="text-[12px] leading-relaxed text-[#63666f]">Use Add layer to insert an image, text, or OpenMoji graphic.</p>
             </div>
           )}
         </aside>
       </div>
+      {presetPickerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="openmoji-picker-title"
+          onPointerDown={() => setPresetPickerOpen(false)}
+        >
+          <div
+            className="flex max-h-[90dvh] w-full max-w-md flex-col rounded-2xl bg-white p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 id="openmoji-picker-title" className="text-base font-semibold text-[#16181c]">
+                  Choose an OpenMoji
+                </h2>
+                <p className="mt-1 text-xs text-[#63666f]">Select a graphic to add it as a new layer.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPresetPickerOpen(false)}
+                aria-label="Close OpenMoji picker"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-xl text-[#63666f] hover:bg-[#eef0f3]"
+              >
+                ×
+              </button>
+            </div>
+            <div className="grid min-h-0 grid-cols-4 gap-2 overflow-y-auto pr-1">
+              {OPENMOJI_PRESETS.map((preset) => (
+                <button
+                  type="button"
+                  key={preset.name}
+                  onClick={() => addOpenMoji(preset)}
+                  className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-[#dfe2e7] bg-[#f8f9fa] p-2 transition hover:border-[#0d8163] hover:bg-[#0d8163]/5"
+                  title={`Add ${preset.name}`}
+                >
+                  <img src={preset.src} alt="" className="h-10 w-10 object-contain" />
+                  <span className="max-w-full truncate text-[10px] font-medium text-[#3f4147]">{preset.name}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-4 text-center text-[10px] text-[#777b83]">
+              Graphics by OpenMoji · CC BY-SA 4.0
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

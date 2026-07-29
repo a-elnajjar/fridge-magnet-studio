@@ -32,3 +32,8 @@ After changing the source, regenerate `dist/` with:
 ```bash
 npm run build
 ```
+
+## Graphic credits
+
+Preset emoji graphics are from [OpenMoji](https://openmoji.org/) and are
+licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
