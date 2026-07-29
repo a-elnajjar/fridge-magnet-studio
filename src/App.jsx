@@ -1,7 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 let nextId = 1;
 const FONT_OPTIONS = ["Inter", "Space Grotesk", "Playfair Display", "Caveat", "Poppins"];
+const OPENMOJI_VERSION = "17.0.0";
+const OPENMOJI_CDN = `https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@${OPENMOJI_VERSION}`;
 const OPENMOJI_PRESETS = [
   { name: "Heart", src: "/presets/openmoji/heart.svg" },
   { name: "Star", src: "/presets/openmoji/star.svg" },
@@ -33,6 +35,11 @@ export default function TextToolPreview() {
   const [selectedId, setSelectedId] = useState(null);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [presetPickerOpen, setPresetPickerOpen] = useState(false);
+  const [openMojiCatalog, setOpenMojiCatalog] = useState(null);
+  const [openMojiLoading, setOpenMojiLoading] = useState(false);
+  const [openMojiError, setOpenMojiError] = useState("");
+  const [openMojiQuery, setOpenMojiQuery] = useState("");
+  const [visiblePresetCount, setVisiblePresetCount] = useState(48);
   const [viewMode, setViewMode] = useState("design");
   const [exporting, setExporting] = useState(false);
   const canvasRef = useRef(null);
@@ -41,6 +48,39 @@ export default function TextToolPreview() {
 
   const selected = layers.find((l) => l.id === selectedId) || null;
   const isDesign = viewMode === "design";
+  const filteredOpenMojis = useMemo(() => {
+    const presets = openMojiCatalog || OPENMOJI_PRESETS;
+    const query = openMojiQuery.trim().toLowerCase();
+    if (!query) return presets;
+    return presets.filter((preset) => preset.searchText?.includes(query) || preset.name.toLowerCase().includes(query));
+  }, [openMojiCatalog, openMojiQuery]);
+  const visibleOpenMojis = filteredOpenMojis.slice(0, visiblePresetCount);
+
+  useEffect(() => {
+    if (!presetPickerOpen || openMojiCatalog) return;
+    const controller = new AbortController();
+    setOpenMojiLoading(true);
+    setOpenMojiError("");
+    fetch(`${OPENMOJI_CDN}/data/openmoji.json`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`OpenMoji request failed (${response.status})`);
+        return response.json();
+      })
+      .then((items) => {
+        setOpenMojiCatalog(
+          items.map((item) => ({
+            name: item.annotation || item.hexcode,
+            src: `${OPENMOJI_CDN}/color/svg/${item.hexcode}.svg`,
+            searchText: `${item.annotation} ${item.tags} ${item.openmoji_tags} ${item.group}`.toLowerCase(),
+          })),
+        );
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") setOpenMojiError("Could not load the full catalog. Showing downloaded presets.");
+      })
+      .finally(() => setOpenMojiLoading(false));
+    return () => controller.abort();
+  }, [presetPickerOpen, openMojiCatalog]);
 
   const addText = () => {
     const id = nextId++;
@@ -118,6 +158,7 @@ export default function TextToolPreview() {
 
   const addOpenMoji = (preset) => {
     const img = new Image();
+    if (preset.src.startsWith("http")) img.crossOrigin = "anonymous";
     img.onload = () => {
       const ratio = img.naturalWidth / img.naturalHeight;
       const maxDim = 42;
@@ -209,6 +250,7 @@ export default function TextToolPreview() {
   const loadImage = (src) =>
     new Promise((resolve, reject) => {
       const image = new Image();
+      if (src.startsWith("http")) image.crossOrigin = "anonymous";
       image.onload = () => resolve(image);
       image.onerror = reject;
       image.src = src;
@@ -693,7 +735,7 @@ export default function TextToolPreview() {
           onPointerDown={() => setPresetPickerOpen(false)}
         >
           <div
-            className="flex max-h-[90dvh] w-full max-w-md flex-col rounded-2xl bg-white p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]"
+            className="flex h-[min(720px,90dvh)] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]"
             onPointerDown={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-start justify-between gap-4">
@@ -712,20 +754,52 @@ export default function TextToolPreview() {
                 ×
               </button>
             </div>
-            <div className="grid min-h-0 grid-cols-4 gap-2 overflow-y-auto pr-1">
-              {OPENMOJI_PRESETS.map((preset) => (
-                <button
-                  type="button"
-                  key={preset.name}
-                  onClick={() => addOpenMoji(preset)}
-                  className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-[#dfe2e7] bg-[#f8f9fa] p-2 transition hover:border-[#0d8163] hover:bg-[#0d8163]/5"
-                  title={`Add ${preset.name}`}
-                >
-                  <img src={preset.src} alt="" className="h-10 w-10 object-contain" />
-                  <span className="max-w-full truncate text-[10px] font-medium text-[#3f4147]">{preset.name}</span>
-                </button>
-              ))}
+            <div className="mb-3">
+              <input
+                type="search"
+                value={openMojiQuery}
+                onChange={(e) => {
+                  setOpenMojiQuery(e.target.value);
+                  setVisiblePresetCount(48);
+                }}
+                placeholder="Search all OpenMoji…"
+                aria-label="Search OpenMoji"
+                className="w-full rounded-lg border border-[#cbcfd6] bg-[#f8f9fa] px-3 py-2 text-sm text-[#16181c] outline-none focus:border-[#0d8163] focus:ring-2 focus:ring-[#0d8163]/15"
+              />
+              <p className="mt-1.5 px-1 text-[10px] text-[#777b83]">
+                {openMojiLoading
+                  ? "Loading the complete catalog…"
+                  : openMojiError || `${filteredOpenMojis.length.toLocaleString()} graphics available`}
+              </p>
             </div>
+            <div
+              className="min-h-0 flex-1 touch-pan-y overflow-y-scroll overscroll-contain pr-2"
+              style={{ scrollbarGutter: "stable" }}
+            >
+              <div className="grid content-start grid-cols-4 gap-2">
+                {visibleOpenMojis.map((preset) => (
+                  <button
+                    type="button"
+                    key={preset.src}
+                    onClick={() => addOpenMoji(preset)}
+                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-[#dfe2e7] bg-[#f8f9fa] p-2 transition hover:border-[#0d8163] hover:bg-[#0d8163]/5"
+                    title={`Add ${preset.name}`}
+                  >
+                    <img src={preset.src} alt="" loading="lazy" className="h-10 w-10 object-contain" />
+                    <span className="max-w-full truncate text-[10px] font-medium text-[#3f4147]">{preset.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {visiblePresetCount < filteredOpenMojis.length && (
+              <button
+                type="button"
+                onClick={() => setVisiblePresetCount((count) => count + 48)}
+                className="mt-3 rounded-lg border border-[#cbcfd6] px-3 py-2 text-xs font-semibold text-[#3f4147] hover:bg-[#eef0f3]"
+              >
+                Load more
+              </button>
+            )}
             <p className="mt-4 text-center text-[10px] text-[#777b83]">
               Graphics by OpenMoji · CC BY-SA 4.0
             </p>
