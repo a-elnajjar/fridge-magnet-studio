@@ -2,6 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 let nextId = 1;
 const FONT_OPTIONS = ["Inter", "Space Grotesk", "Playfair Display", "Caveat", "Poppins"];
+const MAGNET_SIZES = [
+  { id: "50x50", widthMm: 50, heightMm: 50, label: '50 × 50 mm (2″ × 2″)' },
+  { id: "63.5x63.5", widthMm: 63.5, heightMm: 63.5, label: '63.5 × 63.5 mm (2.5″ × 2.5″)' },
+  { id: "80x53", widthMm: 80, heightMm: 53, label: '80 × 53 mm (3″ × 2″)' },
+  { id: "90x65", widthMm: 90, heightMm: 65, label: '90 × 65 mm (3.5″ × 2.5″)' },
+  { id: "80x80", widthMm: 80, heightMm: 80, label: '80 × 80 mm (3″ × 3″)' },
+];
 const OPENMOJI_VERSION = "17.0.0";
 const OPENMOJI_CDN = `https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@${OPENMOJI_VERSION}`;
 const OPENMOJI_PRESETS = [
@@ -33,6 +40,7 @@ const OPENMOJI_PRESETS = [
 export default function TextToolPreview() {
   const [layers, setLayers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [magnetSize, setMagnetSize] = useState(MAGNET_SIZES[0]);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [presetPickerOpen, setPresetPickerOpen] = useState(false);
   const [openMojiCatalog, setOpenMojiCatalog] = useState(null);
@@ -48,6 +56,7 @@ export default function TextToolPreview() {
 
   const selected = layers.find((l) => l.id === selectedId) || null;
   const isDesign = viewMode === "design";
+  const magnetAspectRatio = magnetSize.widthMm / magnetSize.heightMm;
   const filteredOpenMojis = useMemo(() => {
     const presets = openMojiCatalog || OPENMOJI_PRESETS;
     const query = openMojiQuery.trim().toLowerCase();
@@ -82,6 +91,19 @@ export default function TextToolPreview() {
     return () => controller.abort();
   }, [presetPickerOpen, openMojiCatalog]);
 
+  useEffect(() => {
+    const handleDeleteKey = (event) => {
+      if (!selectedId || presetPickerOpen || (event.key !== "Delete" && event.key !== "Backspace")) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || target.closest("input, textarea, select"))) return;
+      event.preventDefault();
+      setLayers((prev) => prev.filter((layer) => layer.id !== selectedId));
+      setSelectedId(null);
+    };
+    window.addEventListener("keydown", handleDeleteKey);
+    return () => window.removeEventListener("keydown", handleDeleteKey);
+  }, [selectedId, presetPickerOpen]);
+
   const addText = () => {
     const id = nextId++;
     const offset = (layers.filter((l) => l.type === "text").length % 5) * 2.4;
@@ -99,7 +121,7 @@ export default function TextToolPreview() {
         color: "#1b1d21",
         align: "center",
         width: 56,
-        height: 16,
+        height: 16 * magnetAspectRatio,
         x: 50 + offset,
         y: 50 + offset,
         rotation: 0,
@@ -110,6 +132,19 @@ export default function TextToolPreview() {
     ]);
     setSelectedId(id);
     setAddMenuOpen(false);
+  };
+
+  const changeMagnetSize = (sizeId) => {
+    const nextSize = MAGNET_SIZES.find((size) => size.id === sizeId);
+    if (!nextSize || nextSize.id === magnetSize.id) return;
+    const nextAspectRatio = nextSize.widthMm / nextSize.heightMm;
+    setLayers((prev) =>
+      prev.map((layer) => ({
+        ...layer,
+        height: layer.height * (nextAspectRatio / magnetAspectRatio),
+      })),
+    );
+    setMagnetSize(nextSize);
   };
 
   const handleFiles = (e) => {
@@ -123,7 +158,7 @@ export default function TextToolPreview() {
           const ratio = img.naturalWidth / img.naturalHeight;
           const maxDim = 55;
           const width = ratio >= 1 ? maxDim : maxDim * ratio;
-          const height = ratio >= 1 ? maxDim / ratio : maxDim;
+          const height = (ratio >= 1 ? maxDim / ratio : maxDim) * magnetAspectRatio;
           const offset = ((layers.length + idx) % 5) * 2.4;
           const id = nextId++;
           setLayers((prev) => [
@@ -163,7 +198,7 @@ export default function TextToolPreview() {
       const ratio = img.naturalWidth / img.naturalHeight;
       const maxDim = 42;
       const width = ratio >= 1 ? maxDim : maxDim * ratio;
-      const height = ratio >= 1 ? maxDim / ratio : maxDim;
+      const height = (ratio >= 1 ? maxDim / ratio : maxDim) * magnetAspectRatio;
       const offset = (layers.length % 5) * 2.4;
       const id = nextId++;
       setLayers((prev) => [
@@ -247,6 +282,12 @@ export default function TextToolPreview() {
     setLayers((prev) => prev.map((layer) => (layer.id === selectedId ? { ...layer, ...changes } : layer)));
   };
 
+  const deleteSelected = () => {
+    if (!selectedId) return;
+    setLayers((prev) => prev.filter((layer) => layer.id !== selectedId));
+    setSelectedId(null);
+  };
+
   const loadImage = (src) =>
     new Promise((resolve, reject) => {
       const image = new Image();
@@ -260,19 +301,23 @@ export default function TextToolPreview() {
     setExporting(true);
     try {
       await document.fonts?.ready;
-      const size = 1200;
+      const maxOutputSize = 1200;
+      const outputWidth =
+        magnetAspectRatio >= 1 ? maxOutputSize : Math.round(maxOutputSize * magnetAspectRatio);
+      const outputHeight =
+        magnetAspectRatio >= 1 ? Math.round(maxOutputSize / magnetAspectRatio) : maxOutputSize;
       const output = document.createElement("canvas");
-      output.width = size;
-      output.height = size;
+      output.width = outputWidth;
+      output.height = outputHeight;
       const ctx = output.getContext("2d");
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, size, size);
+      ctx.fillRect(0, 0, outputWidth, outputHeight);
 
       for (const layer of layers) {
-        const width = (layer.width / 100) * size;
-        const height = (layer.height / 100) * size;
-        const centerX = (layer.x / 100) * size;
-        const centerY = (layer.y / 100) * size;
+        const width = (layer.width / 100) * outputWidth;
+        const height = (layer.height / 100) * outputHeight;
+        const centerX = (layer.x / 100) * outputWidth;
+        const centerY = (layer.y / 100) * outputHeight;
 
         ctx.save();
         ctx.translate(centerX, centerY);
@@ -296,7 +341,7 @@ export default function TextToolPreview() {
           ctx.clip();
           ctx.drawImage(image, imageX, imageY, imageWidth, imageHeight);
         } else {
-          const fontSize = (layer.fontSize / 100) * size;
+          const fontSize = (layer.fontSize / 100) * outputWidth;
           ctx.font = `${layer.italic ? "italic " : ""}${layer.fontWeight} ${fontSize}px "${layer.fontFamily}"`;
           ctx.fillStyle = layer.color;
           ctx.textAlign = layer.align;
@@ -312,7 +357,7 @@ export default function TextToolPreview() {
       }
 
       const link = document.createElement("a");
-      link.download = "fridge-magnet-design.png";
+      link.download = `fridge-magnet-${magnetSize.id}.png`;
       link.href = output.toDataURL("image/png");
       link.click();
     } finally {
@@ -339,7 +384,7 @@ export default function TextToolPreview() {
         let imageStyle;
         if (l.type === "image" && l.naturalWidth && l.naturalHeight) {
           const imageAspect = l.naturalWidth / l.naturalHeight;
-          const frameAspect = l.width / l.height;
+          const frameAspect = (l.width / l.height) * magnetAspectRatio;
           const baseWidth = imageAspect >= frameAspect ? (imageAspect / frameAspect) * 100 : 100;
           const baseHeight = imageAspect >= frameAspect ? 100 : (frameAspect / imageAspect) * 100;
           const displayWidth = baseWidth * (l.cropZoom || 1);
@@ -426,6 +471,21 @@ export default function TextToolPreview() {
           Fridge Magnet Studio
         </p>
         <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2">
+            <span className="hidden text-[11px] font-medium text-[#63666f] sm:inline">Magnet size</span>
+            <select
+              value={magnetSize.id}
+              onChange={(e) => changeMagnetSize(e.target.value)}
+              aria-label="Magnet size"
+              className="max-w-[170px] rounded-lg border border-[#cbcfd6] bg-white px-2 py-1.5 text-[11px] font-medium text-[#3f4147] outline-none focus:border-[#0d8163]"
+            >
+              {MAGNET_SIZES.map((size) => (
+                <option key={size.id} value={size.id}>
+                  {size.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="flex items-center rounded-lg border border-[#cbcfd6] bg-[#eef0f3] p-0.5">
             <button
               type="button"
@@ -527,8 +587,8 @@ export default function TextToolPreview() {
           {isDesign ? (
             <div
               ref={canvasRef}
-              className="aspect-square w-full max-w-[560px] overflow-visible rounded-2xl bg-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] md:h-full md:w-auto"
-              style={{ containerType: "inline-size" }}
+              className="w-full max-w-[560px] overflow-visible rounded-2xl bg-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] md:h-full md:w-auto"
+              style={{ containerType: "inline-size", aspectRatio: `${magnetSize.widthMm} / ${magnetSize.heightMm}` }}
               onPointerDown={(e) => e.stopPropagation()}
             >
               {renderCanvasLayers()}
@@ -547,8 +607,8 @@ export default function TextToolPreview() {
 
               <div
                 ref={canvasRef}
-                className="absolute left-1/2 top-1/2 aspect-square w-[46%] -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-2xl bg-white"
-                style={{ containerType: "inline-size" }}
+                className="absolute left-1/2 top-1/2 w-[46%] -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-2xl bg-white"
+                style={{ containerType: "inline-size", aspectRatio: `${magnetSize.widthMm} / ${magnetSize.heightMm}` }}
                 onPointerDown={(e) => e.stopPropagation()}
               >
                 {renderCanvasLayers()}
@@ -704,19 +764,40 @@ export default function TextToolPreview() {
                     {["left", "center", "right"].map((align) => (
                       <button
                         key={align}
+                        type="button"
                         onClick={() =>
                           setLayers((prev) => prev.map((l) => (l.id === selected.id ? { ...l, align } : l)))
                         }
-                        className={`flex-1 rounded-md border py-1.5 text-[12px] font-medium capitalize ${
+                        aria-label={`Align text ${align}`}
+                        title={`Align ${align}`}
+                        className={`flex flex-1 items-center justify-center rounded-md border py-1.5 ${
                           selected.align === align ? "border-[#0d8163]/50 bg-[#0d8163]/10 text-[#0d8163]" : "border-[#cbcfd6] text-[#63666f]"
                         }`}
                       >
-                        {align}
+                        <svg viewBox="0 0 20 16" aria-hidden="true" className="h-4 w-5 fill-none stroke-current stroke-[1.8]">
+                          <path
+                            strokeLinecap="round"
+                            d={
+                              align === "left"
+                                ? "M2 2h16M2 7h11M2 12h14"
+                                : align === "center"
+                                  ? "M2 2h16M4.5 7h11M3 12h14"
+                                  : "M2 2h16M7 7h11M4 12h14"
+                            }
+                          />
+                        </svg>
                       </button>
                     ))}
                   </div>
                 </>
               )}
+              <button
+                type="button"
+                onClick={deleteSelected}
+                className="mt-1 rounded-lg border border-[#dc5555]/40 bg-[#dc5555]/5 px-3 py-2 text-[12px] font-semibold text-[#b42323] transition-colors hover:bg-[#dc5555]/10"
+              >
+                Delete {selected.type} layer
+              </button>
             </div>
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[#cbcfd6] px-4 py-10 text-center">
