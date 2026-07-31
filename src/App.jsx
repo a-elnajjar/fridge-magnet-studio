@@ -11,30 +11,36 @@ const MAGNET_SIZES = [
 ];
 const OPENMOJI_VERSION = "17.0.0";
 const OPENMOJI_CDN = `https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@${OPENMOJI_VERSION}`;
+// Bundled presets live in public/, so they resolve against the deployed base
+// path (e.g. /fridge-magnet-studio/ on GitHub Pages), not always the web root.
+const localPreset = (name, file) => ({
+  name,
+  src: `${import.meta.env.BASE_URL}presets/openmoji/${file}`,
+});
 const OPENMOJI_PRESETS = [
-  { name: "Heart", src: "/presets/openmoji/heart.svg" },
-  { name: "Star", src: "/presets/openmoji/star.svg" },
-  { name: "Smile", src: "/presets/openmoji/smile.svg" },
-  { name: "Sunflower", src: "/presets/openmoji/sunflower.svg" },
-  { name: "Pizza", src: "/presets/openmoji/pizza.svg" },
-  { name: "Rocket", src: "/presets/openmoji/rocket.svg" },
-  { name: "Butterfly", src: "/presets/openmoji/butterfly.svg" },
-  { name: "Cat", src: "/presets/openmoji/cat.svg" },
-  { name: "Dog", src: "/presets/openmoji/dog.svg" },
-  { name: "Fire", src: "/presets/openmoji/fire.svg" },
-  { name: "Sparkles", src: "/presets/openmoji/sparkles.svg" },
-  { name: "Sun", src: "/presets/openmoji/sun.svg" },
-  { name: "Moon", src: "/presets/openmoji/moon.svg" },
-  { name: "Lightning", src: "/presets/openmoji/lightning.svg" },
-  { name: "Music", src: "/presets/openmoji/music.svg" },
-  { name: "Camera", src: "/presets/openmoji/camera.svg" },
-  { name: "Gift", src: "/presets/openmoji/gift.svg" },
-  { name: "Party", src: "/presets/openmoji/party.svg" },
-  { name: "Globe", src: "/presets/openmoji/globe.svg" },
-  { name: "Ice cream", src: "/presets/openmoji/ice-cream.svg" },
-  { name: "Avocado", src: "/presets/openmoji/avocado.svg" },
-  { name: "Soccer", src: "/presets/openmoji/soccer.svg" },
-  { name: "Car", src: "/presets/openmoji/car.svg" },
+  localPreset("Heart", "heart.svg"),
+  localPreset("Star", "star.svg"),
+  localPreset("Smile", "smile.svg"),
+  localPreset("Sunflower", "sunflower.svg"),
+  localPreset("Pizza", "pizza.svg"),
+  localPreset("Rocket", "rocket.svg"),
+  localPreset("Butterfly", "butterfly.svg"),
+  localPreset("Cat", "cat.svg"),
+  localPreset("Dog", "dog.svg"),
+  localPreset("Fire", "fire.svg"),
+  localPreset("Sparkles", "sparkles.svg"),
+  localPreset("Sun", "sun.svg"),
+  localPreset("Moon", "moon.svg"),
+  localPreset("Lightning", "lightning.svg"),
+  localPreset("Music", "music.svg"),
+  localPreset("Camera", "camera.svg"),
+  localPreset("Gift", "gift.svg"),
+  localPreset("Party", "party.svg"),
+  localPreset("Globe", "globe.svg"),
+  localPreset("Ice cream", "ice-cream.svg"),
+  localPreset("Avocado", "avocado.svg"),
+  localPreset("Soccer", "soccer.svg"),
+  localPreset("Car", "car.svg"),
 ];
 
 export default function TextToolPreview() {

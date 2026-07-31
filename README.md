@@ -33,6 +33,21 @@ After changing the source, regenerate `dist/` with:
 npm run build
 ```
 
+## Deploy to GitHub Pages
+
+`.github/workflows/deploy-pages.yml` builds and publishes the site on every
+push to `main`, and can also be run manually from the Actions tab. The first
+successful run enables Pages for the repository automatically; the site is then
+served from <https://a-elnajjar.github.io/fridge-magnet-studio/>.
+
+If your account or organization blocks workflows from enabling Pages, set it up
+once under **Settings → Pages → Build and deployment → Source: GitHub Actions**
+and re-run the workflow.
+
+Because the site is served from a subdirectory, the CI build sets
+`VITE_BASE_PATH=/fridge-magnet-studio/`. A plain `npm run build` still targets
+the web root, so serving `dist/` locally works unchanged.
+
 ## Graphic credits
 
 Preset emoji graphics are from [OpenMoji](https://openmoji.org/) and are
