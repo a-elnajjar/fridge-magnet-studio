@@ -54,6 +54,10 @@ export default function TextToolPreview() {
   const fileInputRef = useRef(null);
   const dragInfo = useRef(null);
 
+  const toggleLayerVisibility = (id) => {
+    setLayers((prev) => prev.map((layer) => (layer.id === id ? { ...layer, visible: !layer.visible } : layer)));
+  };
+
   const selected = layers.find((l) => l.id === selectedId) || null;
   const isDesign = viewMode === "design";
   const magnetAspectRatio = magnetSize.widthMm / magnetSize.heightMm;
@@ -128,6 +132,7 @@ export default function TextToolPreview() {
         flipX: false,
         flipY: false,
         opacity: 1,
+        visible: true,
       },
     ]);
     setSelectedId(id);
@@ -181,6 +186,7 @@ export default function TextToolPreview() {
               flipX: false,
               flipY: false,
               opacity: 1,
+              visible: true,
             },
           ]);
           setSelectedId(id);
@@ -221,6 +227,7 @@ export default function TextToolPreview() {
           flipX: false,
           flipY: false,
           opacity: 1,
+          visible: true,
         },
       ]);
       setSelectedId(id);
@@ -314,6 +321,7 @@ export default function TextToolPreview() {
       ctx.fillRect(0, 0, outputWidth, outputHeight);
 
       for (const layer of layers) {
+        if (!layer.visible) continue;
         const width = (layer.width / 100) * outputWidth;
         const height = (layer.height / 100) * outputHeight;
         const centerX = (layer.x / 100) * outputWidth;
@@ -377,6 +385,7 @@ export default function TextToolPreview() {
         </div>
       )}
       {layers.map((l) => {
+        if (!l.visible) return null;
         const left = l.x - l.width / 2;
         const top = l.y - l.height / 2;
         const flip = `scaleX(${l.flipX ? -1 : 1}) scaleY(${l.flipY ? -1 : 1})`;
@@ -793,10 +802,10 @@ export default function TextToolPreview() {
               )}
               <button
                 type="button"
-                onClick={deleteSelected}
+                onClick={()=> toggleLayerVisibility(selected.id)}
                 className="mt-1 rounded-lg border border-[#dc5555]/40 bg-[#dc5555]/5 px-3 py-2 text-[12px] font-semibold text-[#b42323] transition-colors hover:bg-[#dc5555]/10"
               >
-                Delete {selected.type} layer
+                { selected.visible ? "Hide" : "Show" }
               </button>
             </div>
           ) : (
